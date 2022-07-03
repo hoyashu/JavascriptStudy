@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //틸드 (~) 물결 한개
+        //return값의 -(n+1)된 값을 리턴
+        if(~'oh my god'.indexOf('g')){
+            console.log("g가 있음");
+        }else{
+            console.log("g가 없음");
+        }//g가 있음
+
+        if(~'oh my god'.indexOf('t')){
+            console.log("t가 있음");
+        }else{
+            console.log("t가 없음");
+        }//t가 없음
+
+        console.log("5 : " + ~5); // -6
+        console.log("5.2 : " + ~5.2); // -6
+        console.log("-5.2 : " + ~-5.2); // 4
+        console.log("5.2 : " + ~"5.2"); // -6
+        console.log("가나다 : " + ~"가나다"); // -1
+        console.log("true : " + ~true); // -2
+        console.log("false : " + ~false); // -1
+
+        //틸드 (~~) 물결 두개
+        //Math.floor(), 버림, 과 동등하게 쓰이는 연산자..라고 하지만 음수, 문자열 일때는 차이가 있기에 주의할 것
+        const num1 = '2234.5678'; 
+        const num2 = -2234.5678; 
+        const num3 = 1; 
+        const num4 = 1.2; 
+        const num5 = "가나다"; 
+        const num6 = true; 
+        const num7 = false; 
+        console.log("2234.5678 : " + Math.floor(num1) + " , " + ~~num1); //2234 , 2234
+        console.log("-2234.5678 : " + Math.floor(num1) + " , " + ~~num2); //-2235 , -2234 -- 음수인 경우 주의
+        console.log("1 : " + Math.floor(num3) + " , " + ~~num3);// 1 , 1
+        console.log("1.2 : " + Math.floor(num4) + " , " + ~~num4);// 1 , 1
+        console.log("가나다 : " + Math.floor(num5) + " , " + ~~num5);// NaN , 0
+        console.log("true : " + Math.floor(num6) + " , " + ~~num6);// 1 , 1
+        console.log("false : " + Math.floor(num7) + " , " + ~~num7);// 0 , 0
+    </script>
+</body>
+</html>

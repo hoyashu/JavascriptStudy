@@ -1,0 +1,301 @@
+<html>
+
+<head>
+    <title>고양이 사진첩!</title>
+    <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+
+<body>
+    <h1>고양이 사진첩</h1>
+    <main class="App">
+        <nav class="Breadcrumb">
+            <div>root</div>
+            <div>노란고양이</div>
+        </nav>
+        <div class="Nodes">
+            <div class="Node">
+                <img src="./assets/prev.png">
+            </div>
+            <div class="Node">
+                <img src="./assets/directory.png">
+                <div>2021/04</div>
+            </div>
+            <div class="Node">
+                <img src="./assets/file.png">
+                <div>하품하는 사진</div>
+            </div>
+        </div>
+    </main>
+    <!-- Loading Layer sample markup -->
+    <div class="Modal Loading">
+        <div class="content">
+            <img src="./assets/nyan-cat.gif">
+        </div>
+    </div>
+
+    <!-- ImageViewer sample markup -->
+
+    <div class="Modal ImageViewer">
+        <div class="content">
+            <img src="./assets/sample_image.jpg">
+        </div>
+
+</body>
+<script>
+    let prevArray = [];
+    let viewerActive = false; //이미지 보기 모달이 켜져있는지
+
+
+    let nav = document.querySelector('.Breadcrumb');
+
+    function clickReady(data, isRoot) {
+      return new Promise(function (resolve) {
+            //console.log("gg", prevArray)
+            // Good
+            let node = document.getElementsByClassName('Node');
+            //console.log(node)
+            let name = "";
+            for (let i = 0; i < node.length; i++) {
+                let element = node[i];
+                element.addEventListener('click', function () {
+
+                    const typeSplit = this.firstChild.src.split("/");
+                    const typeLength = typeSplit.length;
+                    const type = typeSplit[typeLength - 1]
+                    if (type === "prev.png") {
+                        //뒤로가기
+                        if (prevArray.length == 1) {
+                            exec(0);
+                        } else {
+                            //console.log("ㅋㅋ", prevArray, prevArray[prevArray.length - 2])
+                            exec(prevArray[prevArray.length - 2]);
+                        }
+                        prevArray = prevArray.slice(0, prevArray.length-1);
+                        removeNav(1);
+                        console.log("지워")
+                    } else if (type === "file.png") {
+                        //이미지 클릭
+                        if (isRoot) {
+                            displayViewer(data[i]);
+                        } else {
+                            displayViewer(data[i - 1]);
+                        }
+                    } else {
+                        //디렉토리 클릭
+                        name = this.lastChild.innerHTML;
+                        for (let iterator of data) {
+                            if (iterator.name === name) {
+                                //상세보기
+                                exec(iterator.id);
+                                prevArray.push(iterator.id);
+                                setNav(name, false);
+                            }
+                        }
+                    }
+                });
+            }
+
+            console.log("타임 시작ㄲ")
+             setTimeout(() => {
+                console.log("타임 시작!")
+                resolve(true);
+            }, 10000000);
+        })
+    }
+
+
+    function setNav(name, isRoot) {
+        if (isRoot) {
+            nav.innerHTML = "<div>root</div>";
+        } else {
+            const div = document.createElement("div");
+            div.append(name);
+            nav.appendChild(div);
+        }
+
+        let node = document.querySelectorAll('.Breadcrumb div');
+        console.log(node);
+            for (let i = 0; i < node.length; i++) {
+                let element = node[i];
+                element.addEventListener('click', function () {
+                  console.log("이거이거~", i)
+                  if(i != prevArray.length){
+                    if (i-1 < 0) {
+                      exec(0);
+                      removeNav(prevArray.length);
+                      prevArray = [];
+                    } else {
+                      console.log(prevArray);
+                      console.log("dd", prevArray.length,i  )
+                      //prevArray = prevArray.slice(0, i);
+                      removeNav(prevArray.length - i);
+                      prevArray = prevArray.slice(0, i);
+                      exec(prevArray[i-1]);
+                      
+                    }
+                    
+                  }
+                  
+            });
+          }
+        return true;
+    }
+
+    function removeNav(num) {
+      console.log("지지지", num)
+      for (let i = 0; i < num; i++) {
+        console.log("지우자~")
+        nav.removeChild(nav.lastChild);
+      }
+        return true;
+    }
+
+
+    function setList(data, isRoot) {
+      console.log("html 추가 시작");
+        return new Promise((resolve, reject) => {
+            let htmlr = "";
+            if (!isRoot) {
+                htmlr += `<div class="Node"><img src="./assets/prev.png"></div>`;
+            }
+
+            let imgSrc;
+            for (const iterator of data) {
+                if (iterator.type === "DIRECTORY") {
+                    imgSrc = "./assets/directory.png";
+                } else {
+                    imgSrc = "./assets/file.png";
+                }
+                //console.log(iterator);
+                htmlr += `<div class="Node"><img src="${imgSrc}"><div>${iterator.name}</div></div>`;
+            }
+
+            const nodes = document.getElementsByClassName("Nodes");
+            //console.log(nodes[0]);
+            nodes[0].innerHTML = htmlr;
+            //return true;
+            console.log("html 끝");
+            resolve(data);
+        })
+    }
+
+    // selecting imgViewer div
+    const imgViewer = document.querySelector(".ImageViewer");
+    const imgViewerImgTag = document.querySelector(".ImageViewer img");
+    // showing imgViewer
+    function displayViewer(node) {
+        //imgViewerImgTag.src = node.filePath;
+        imgViewerImgTag.src = "./assets/sample_image.jpg";
+        imgViewer.classList.add("display");
+        viewerActive = true;
+    }
+
+    // hiding imgViewer 
+    function hideViewer() {
+        imgViewer.classList.remove("display");
+    }
+
+    //esc클릭시 모달 꺼지기
+    window.onkeydown = function (event) {
+        if (event.keyCode == 27) {
+            hideViewer()
+        }
+    };
+
+    document.addEventListener('click', function (e) {
+        if (viewerActive == true) { //모달이 켜져있을때
+            if (e.target != imgViewerImgTag) {
+                const tgEl = e.target;
+                const item = tgEl.closest('.Node');
+                if (!item) { //item이 아니면 모달 끄기
+                    hideViewer();
+                    viewerActive = false;
+                }
+            }
+        }
+    });
+
+
+    // selecting loading div
+    const loader = document.querySelector(".Loading");
+
+    // showing loading
+    function displayLoading() {
+        loader.classList.add("display");
+        // to stop loading after some time
+        setTimeout(() => {
+            loader.classList.remove("display");
+        }, 5000);
+    }
+
+    // hiding loading 
+    function hideLoading() {
+        console.log("로딩 끝")
+        loader.classList.remove("display");
+    }
+
+
+    function getData(nodeId, isRoot) {
+        return new Promise((resolve, reject) => {
+            if (isRoot) {
+                dataUrl = "https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev";
+            } else {
+                dataUrl = "https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev/" + nodeId;
+            }
+
+            const response = fetch(dataUrl)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log('성공:', data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    console.error('실패:', error);
+                });
+        })
+    }
+
+    var exec = async (nodeId) => {
+        try {
+            let isRoot = false;
+            if (nodeId == 0 || nodeId == "") {
+                isRoot = true;
+                console.log("root입니다")
+            }
+            //로딩 시작
+            displayLoading();
+
+            //데이터 불러오기
+            console.log("데이터 불러오기 시작")
+            const data = await getData(nodeId, isRoot)
+                .then((data) => {
+                    exec2(data, isRoot);
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    var exec2 = async (data, isRoot) => {
+      let time = false;
+        try {
+            await setList(data, isRoot)
+                .then((data) => {
+                    //click 이벤트 추가
+                    console.log("이벤트 추가 시작");
+                    time = clickReady(data, isRoot)
+                    console.log("이벤트 추가 끝");
+                })
+                if(time){
+                  hideLoading();
+                }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    exec(0);
+    setNav(name, true);
+</script>
+
+</html>
